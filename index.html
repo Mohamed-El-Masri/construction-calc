@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حاسبة كميات وتكاليف الإنشاءات</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+    body {
+      font-family: 'Cairo', Arial, sans-serif;
+      background: linear-gradient(135deg, #e3f0ff 0%, #f7f7f7 100%);
+      margin: 0;
+      padding: 0;
+      color: #222;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto 24px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 32px #1976d233, 0 1.5px 6px #0001;
+      padding: 32px 20px 24px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, #1976d2 30%, #fff0 70%);
+      opacity: 0.12;
+      z-index: 0;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 28px;
+      color: #1976d2;
+      font-size: 2.1rem;
+      letter-spacing: 1px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: relative;
+      z-index: 1;
+    }
+    label {
+      font-weight: bold;
+      margin-bottom: 4px;
+      color: #1976d2;
+      font-size: 1.05rem;
+      letter-spacing: 0.2px;
+    }
+    input, select {
+      padding: 10px 12px;
+      border: 1.5px solid #b6c6e3;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      background: #f8fbff;
+      transition: border 0.2s;
+      outline: none;
+      margin-bottom: 2px;
+    }
+    input:focus, select:focus {
+      border-color: #1976d2;
+      background: #f1f7ff;
+    }
+    .row {
+      display: flex;
+      gap: 16px;
+    }
+    .row > div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    button {
+      background: linear-gradient(90deg, #1976d2 60%, #42a5f5 100%);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 1.15rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 16px;
+      box-shadow: 0 2px 8px #1976d233;
+      transition: background 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.5px;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #125ea7 60%, #1976d2 100%);
+      box-shadow: 0 4px 16px #1976d244;
+    }
+    .results {
+      margin-top: 36px;
+      background: linear-gradient(90deg, #e3f0ff 60%, #f1f8e9 100%);
+      border-radius: 10px;
+      padding: 20px 14px;
+      box-shadow: 0 1.5px 8px #1976d211;
+      position: relative;
+      z-index: 1;
+    }
+    .results h2 {
+      color: #388e3c;
+      margin-top: 0;
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+    }
+    #quantities, #costs {
+      font-size: 1.08rem;
+      line-height: 2.1;
+    }
+    .signature {
+      text-align: center;
+      margin-top: 32px;
+      color: #1976d2;
+      font-size: 1.08rem;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      opacity: 0.85;
+      padding-bottom: 10px;
+      user-select: none;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px 2px 16px 2px;
+        margin: 10px 2px 16px 2px;
+      }
+      .row {
+        flex-direction: column;
+        gap: 0;
+      }
+      button {
+        font-size: 1rem;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>حاسبة كميات وتكاليف الإنشاءات</h1>
+    <form id="calcForm">
+      <div class="row">
+        <div>
+          <label for="floorType">نوع الدور</label>
+          <select id="floorType" required>
+            <option value="">اختر...</option>
+            <option value="ارضى">أرضي</option>
+            <option value="متكرر">متكرر</option>
+          </select>
+        </div>
+        <div>
+          <label for="floorHeight">ارتفاع الدور (متر)</label>
+          <input type="number" id="floorHeight" min="2" step="0.01" placeholder="مثال: 3" required>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="landArea">مساحة الأرض (متر²)</label>
+          <input type="number" id="landArea" min="1" step="0.01" placeholder="مثال: 200" required>
+        </div>
+        <div>
+          <label for="buildingRatio">نسبة المباني من الأرض (%)</label>
+          <input type="number" id="buildingRatio" min="1" max="100" step="0.1" placeholder="مثال: 60" required>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="brickType">نوع الطوب</label>
+          <select id="brickType" required>
+            <option value="">اختر...</option>
+            <option value="طوب أحمر">طوب أحمر</option>
+            <option value="طوب أسمنتي">طوب أسمنتي</option>
+            <option value="طوب طفلي">طوب طفلي</option>
+            <option value="اخر">أخرى</option>
+          </select>
+        </div>
+        <div>
+          <label for="brickPrice">سعر الألف طوبة (جنيه)</label>
+          <input type="number" id="brickPrice" min="1" step="0.01" placeholder="مثال: 1500" required>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="cementPrice">سعر طن الأسمنت (جنيه)</label>
+          <input type="number" id="cementPrice" min="1" step="0.01" placeholder="مثال: 2000" required>
+        </div>
+        <div>
+          <label for="ironPrice">سعر طن الحديد (جنيه)</label>
+          <input type="number" id="ironPrice" min="1" step="0.01" placeholder="مثال: 35000" required>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="sandPrice">سعر متر الرمل (جنيه)</label>
+          <input type="number" id="sandPrice" min="1" step="0.01" placeholder="مثال: 200" required>
+        </div>
+        <div>
+          <label for="gravelPrice">سعر متر الزلط (جنيه)</label>
+          <input type="number" id="gravelPrice" min="1" step="0.01" placeholder="مثال: 250" required>
+        </div>
+      </div>
+      <button type="submit">احسب الكميات والتكاليف</button>
+    </form>
+    <div class="results" id="results" style="display:none">
+      <h2>النتائج:</h2>
+      <div id="quantities"></div>
+      <div id="costs" style="margin-top:16px;"></div>
+    </div>
+  </div>
+  <div class="signature">تصميم وتطوير: المهندس محمد سامح المصري</div>
+  <script>
+    // معادلات تقريبية واقعية
+    const BRICK_DATA = {
+      "طوب أحمر": { bricksPerM2: 62.5, size: '6x12x25 سم' },
+      "طوب أسمنتي": { bricksPerM2: 50, size: '12x20x40 سم' },
+      "طوب طفلي": { bricksPerM2: 60, size: '6x12x25 سم' },
+      "اخر": { bricksPerM2: 60, size: 'غير محدد' }
+    };
+    const WASTE = {
+      brick: 0.05, // 5%
+      sand: 0.07,  // 7%
+      cement: 0.05, // 5%
+      gravel: 0.03, // 3%
+      iron: 0.03,   // 3%
+      concrete: 0.02 // 2%
+    };
+    // متوسط نسب الحديد في المتر المكعب خرسانة مسلحة
+    const IRON_KG_PER_M3 = 110; // كجم/م3 (متوسط)
+    // نسب الخلطة الخرسانية التقريبية (متر مكعب)
+    const CONCRETE_MIX = {
+      sand: 0.4,   // م³ رمل لكل 1 م³ خرسانة
+      gravel: 0.8, // م³ زلط لكل 1 م³ خرسانة
+      cement: 350  // كجم أسمنت لكل 1 م³ خرسانة (تقريبًا 7 شكاير)
+    };
+    // متوسط مونة المباني لكل 1000 طوبة
+    const MORTAR_PER_1000_BRICKS = {
+      sand: 0.3, // م³ رمل
+      cement: 0.25 // طن أسمنت (5 شكاير)
+    };
+    // متوسط الرمل للمحارة (البياض): 0.18 م³/م²
+    const PLASTER_SAND_PER_M2 = 0.018; // م³ رمل لكل 1 م² محارة (وجهين)
+    // متوسط الأسمنت للمحارة: 0.008 طن/م² (0.16 شكارة)
+    const PLASTER_CEMENT_PER_M2 = 0.008;
+
+    document.getElementById('calcForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // جلب القيم
+      const floorType = document.getElementById('floorType').value;
+      const floorHeight = parseFloat(document.getElementById('floorHeight').value);
+      const landArea = parseFloat(document.getElementById('landArea').value);
+      const buildingRatio = parseFloat(document.getElementById('buildingRatio').value) / 100;
+      const brickType = document.getElementById('brickType').value;
+      const brickPrice = parseFloat(document.getElementById('brickPrice').value);
+      const cementPrice = parseFloat(document.getElementById('cementPrice').value);
+      const ironPrice = parseFloat(document.getElementById('ironPrice').value);
+      const sandPrice = parseFloat(document.getElementById('sandPrice').value);
+      const gravelPrice = parseFloat(document.getElementById('gravelPrice').value);
+
+      // المساحة المبنية
+      const builtArea = landArea * buildingRatio;
+      // تقدير مساحة الحوائط (تقريبًا 1.2 إلى 1.5 من المساحة المبنية)
+      const wallArea = builtArea * 1.3;
+      // عدد الطوب
+      const bricksPerM2 = BRICK_DATA[brickType]?.bricksPerM2 || 60;
+      const totalBricks = wallArea * bricksPerM2;
+      const totalBricksWithWaste = totalBricks * (1 + WASTE.brick);
+      // كمية الرمل للمباني
+      const sandForMasonry = (totalBricks / 1000) * MORTAR_PER_1000_BRICKS.sand;
+      const sandForMasonryWithWaste = sandForMasonry * (1 + WASTE.sand);
+      // كمية الأسمنت للمباني (بالطن)
+      const cementForMasonry = (totalBricks / 1000) * MORTAR_PER_1000_BRICKS.cement;
+      const cementForMasonryWithWaste = cementForMasonry * (1 + WASTE.cement);
+      // كمية المحارة (البياض)
+      const plasterArea = wallArea; // نفترض المحارة لكل الحوائط
+      const sandForPlaster = plasterArea * PLASTER_SAND_PER_M2;
+      const sandForPlasterWithWaste = sandForPlaster * (1 + WASTE.sand);
+      const cementForPlaster = plasterArea * PLASTER_CEMENT_PER_M2;
+      const cementForPlasterWithWaste = cementForPlaster * (1 + WASTE.cement);
+      // كمية الرمل للخرسانة (عادية ومسلحة)
+      // نفترض أن الخرسانة المسلحة تغطي 60% من المساحة المبنية (أسقف وأعمدة وقواعد)
+      const concreteArea = builtArea * (floorType === 'ارضى' ? 0.7 : 0.6) * floorHeight; // م³
+      const sandForConcrete = concreteArea * CONCRETE_MIX.sand;
+      const sandForConcreteWithWaste = sandForConcrete * (1 + WASTE.sand);
+      // كمية الزلط للخرسانة المسلحة
+      const gravelForConcrete = concreteArea * CONCRETE_MIX.gravel;
+      const gravelForConcreteWithWaste = gravelForConcrete * (1 + WASTE.gravel);
+      // كمية الأسمنت للخرسانة (بالطن)
+      const cementForConcrete = (concreteArea * CONCRETE_MIX.cement) / 1000; // طن
+      const cementForConcreteWithWaste = cementForConcrete * (1 + WASTE.cement);
+      // كمية الحديد (بالطن)
+      const ironForConcrete = (concreteArea * IRON_KG_PER_M3) / 1000;
+      const ironForConcreteWithWaste = ironForConcrete * (1 + WASTE.iron);
+      // إجمالي الرمل
+      const totalSand = sandForMasonry + sandForPlaster + sandForConcrete;
+      const totalSandWithWaste = sandForMasonryWithWaste + sandForPlasterWithWaste + sandForConcreteWithWaste;
+      // إجمالي الأسمنت
+      const totalCement = cementForMasonry + cementForPlaster + cementForConcrete;
+      const totalCementWithWaste = cementForMasonryWithWaste + cementForPlasterWithWaste + cementForConcreteWithWaste;
+      // عدد شكاير الأسمنت (50 كجم)
+      const cementBags = totalCementWithWaste * 1000 / 50;
+      // إجمالي الخرسانة المسلحة
+      const totalConcrete = concreteArea;
+      const totalConcreteWithWaste = concreteArea * (1 + WASTE.concrete);
+
+      // التكاليف
+      const costBricks = (totalBricksWithWaste / 1000) * brickPrice;
+      const costSand = totalSandWithWaste * sandPrice;
+      const costGravel = gravelForConcreteWithWaste * gravelPrice;
+      const costCement = totalCementWithWaste * cementPrice;
+      const costIron = ironForConcreteWithWaste * ironPrice;
+      const totalCost = costBricks + costSand + costGravel + costCement + costIron;
+
+      // عرض النتائج
+      let quantitiesHtml = `
+        <b>كمية الطوب:</b> <br>
+        - قبل الهالك: <b>${totalBricks.toLocaleString(undefined, {maximumFractionDigits:0})}</b> طوبة<br>
+        - بعد الهالك (${(WASTE.brick*100).toFixed(1)}%): <b>${totalBricksWithWaste.toLocaleString(undefined, {maximumFractionDigits:0})}</b> طوبة<br>
+        <hr>
+        <b>كمية الرمل:</b><br>
+        - للمباني: ${sandForMasonry.toFixed(2)} م³ (بعد الهالك: ${sandForMasonryWithWaste.toFixed(2)} م³)<br>
+        - للخرسانة: ${sandForConcrete.toFixed(2)} م³ (بعد الهالك: ${sandForConcreteWithWaste.toFixed(2)} م³)<br>
+        - للمحارة: ${sandForPlaster.toFixed(2)} م³ (بعد الهالك: ${sandForPlasterWithWaste.toFixed(2)} م³)<br>
+        - <b>الإجمالي:</b> ${totalSand.toFixed(2)} م³ (بعد الهالك: ${totalSandWithWaste.toFixed(2)} م³)<br>
+        <hr>
+        <b>كمية الزلط للخرسانة المسلحة:</b><br>
+        - قبل الهالك: ${gravelForConcrete.toFixed(2)} م³<br>
+        - بعد الهالك (${(WASTE.gravel*100).toFixed(1)}%): ${gravelForConcreteWithWaste.toFixed(2)} م³<br>
+        <hr>
+        <b>كمية الأسمنت:</b><br>
+        - للمباني: ${cementForMasonry.toFixed(2)} طن (بعد الهالك: ${cementForMasonryWithWaste.toFixed(2)} طن)<br>
+        - للخرسانة: ${cementForConcrete.toFixed(2)} طن (بعد الهالك: ${cementForConcreteWithWaste.toFixed(2)} طن)<br>
+        - للمحارة: ${cementForPlaster.toFixed(2)} طن (بعد الهالك: ${cementForPlasterWithWaste.toFixed(2)} طن)<br>
+        - <b>الإجمالي:</b> ${totalCement.toFixed(2)} طن (بعد الهالك: ${totalCementWithWaste.toFixed(2)} طن)<br>
+        - <b>عدد شكاير الأسمنت (50 كجم):</b> ${cementBags.toLocaleString(undefined, {maximumFractionDigits:0})} شكارة<br>
+        <hr>
+        <b>كمية الحديد:</b><br>
+        - قبل الهالك: ${ironForConcrete.toFixed(2)} طن<br>
+        - بعد الهالك (${(WASTE.iron*100).toFixed(1)}%): ${ironForConcreteWithWaste.toFixed(2)} طن<br>
+        - <span style="color:#888">(اقتراح: أقطار 12مم و16مم و8مم بنسب متوازنة)</span><br>
+        <hr>
+        <b>كمية الخرسانة المسلحة:</b><br>
+        - قبل الهالك: ${totalConcrete.toFixed(2)} م³<br>
+        - بعد الهالك (${(WASTE.concrete*100).toFixed(1)}%): ${totalConcreteWithWaste.toFixed(2)} م³<br>
+      `;
+      let costsHtml = `
+        <b>تكلفة الطوب:</b> ${costBricks.toLocaleString(undefined, {maximumFractionDigits:0})} جنيه<br>
+        <b>تكلفة الرمل:</b> ${costSand.toLocaleString(undefined, {maximumFractionDigits:0})} جنيه<br>
+        <b>تكلفة الزلط:</b> ${costGravel.toLocaleString(undefined, {maximumFractionDigits:0})} جنيه<br>
+        <b>تكلفة الأسمنت:</b> ${costCement.toLocaleString(undefined, {maximumFractionDigits:0})} جنيه<br>
+        <b>تكلفة الحديد:</b> ${costIron.toLocaleString(undefined, {maximumFractionDigits:0})} جنيه<br>
+        <hr>
+        <b>التكلفة الكلية التقريبية:</b> <span style="color:#1976d2;font-size:1.2em;">${totalCost.toLocaleString(undefined, {maximumFractionDigits:0})} جنيه</span>
+      `;
+      document.getElementById('quantities').innerHTML = quantitiesHtml;
+      document.getElementById('costs').innerHTML = costsHtml;
+      document.getElementById('results').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
